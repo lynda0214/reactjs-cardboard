@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" width="device-width, intial-scale=1">
+  <title>React Comment Board</title>
+
+  <!-- <script crossorigin src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script> -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.0.1/react.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.0.1/react-dom.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.js"></script>
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
+
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css"
+    integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+
+  <link rel="stylesheet" href="./my.css">
+  
+</head>
+
+<body>
+
+  <div style="width: 100%; height: 50px"></div>
+  <div style="width: 100%; height: 10px"></div>
+  <div class=container>
+    <div class="row">
+      <div class="col-3"></div>
+      <div id="container" class="col-6"></div>
+      <div class="col-3"></div>
+    </div>
+  </div>
+
+
+  <div class="image-cropper">
+    <a target="_blank" href="https://github.com/lynda0214/reactjs-cardboard"><img class="myGitHub" src="./avatar.jpeg"></a>
+  </div>
+
+</body>
+
+</html>
+
+<script type='text/babel'>
+
+let Board = React.createClass({
+    getInitialState: function () {
+        return {
+            comments: [
+                'To be or not to be: that is a question', 
+                'Romeo, Romeo! wherefore art thou Romeo?', 
+                'Now is the winter of our discontent'
+            ]
+        } 
+    }, 
+    removeComment: function (i) {
+        console.log('Removing comment: '+i);
+        let arr = this.state.comments;
+        arr.splice(i, 1);
+        this.setState({comments: arr});
+    }, 
+    updateComment: function (newText, i) {
+        console.log('updating comment');
+        let arr = this.state.comments;
+        arr[i] = newText;
+        this.setState({comments: arr});
+    }, 
+    addComment: function () {
+      console.log('add comment');
+      this.setState({comments: [...this.state.comments, "New Comment"]})
+    },
+    eachComment: function (text, i) { 
+        return (
+            <Comment key={i} index={i} updateCommentText={this.updateComment} deleteFromBoard={this.removeComment}>
+                {text}
+            </Comment>
+            );
+    }, 
+    render: function () {
+        return (
+            <div className='board card'>
+                <div className="card-body">
+                  {this.state.comments.map(this.eachComment)}
+                  
+                    <a href="#" className='add-sign' onClick={this.addComment}>
+                      <i className="fas fa-plus-square"></i>
+                    </a>
+                  
+                </div>
+            </div>
+        );
+    }
+});
+    
+let Comment = React.createClass({
+  getInitialState: function () {
+    return {editing: false}
+  },
+  edit: function () {
+    this.setState({editing: true});  
+
+  }, 
+  remove: function () {
+    console.log('removing');
+    this.props.deleteFromBoard(this.props.index);
+  },
+  save: function () {
+    let val = this.refs.newText.value;
+    this.props.updateCommentText(val, this.props.index);  
+    this.setState({editing: false});  
+  }, 
+  renderNormal: function () {
+    return (
+        <div className='commentContainer card' style={{margin: '10px'}}>
+          <div className="card-body">
+            <div className='commentText card-text' onClick={this.edit}>{this.props.children}</div>
+                <a href="#" className='cross-sign' onClick={this.remove}>
+                  <i className="fas fa-times-circle"></i>
+                </a>
+          </div>
+        </div>
+    );
+  }, 
+  renderForm: function () {
+    return ( 
+        <div className='commentContainer card' style={{margin: '10px'}}>
+          <div className="card-body">
+            <textarea ref="newText" style={{resize:'none', width:'100%'}} defaultValue={this.props.children} autoFocus onBlur={this.save}></textarea>
+          </div>  
+        </div>
+    );
+  }, 
+  render: function () {
+    if (this.state.editing) {
+        return this.renderForm();
+    } else {
+        return this.renderNormal();
+    }
+  }
+});
+
+ReactDOM.render(<Board />, document.getElementById('container'));
+
+</script>
